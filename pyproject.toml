@@ -1,7 +1,13 @@
 [project]
-name = "book2"
+name = "book"
 version = "0.1.0"
 description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.12"
-dependencies = []
+dependencies = [
+    "beautifulsoup4>=4.13.4",
+    "lxml>=5.4.0",
+    "mobi>=0.3.3",
+    "pathlib>=1.0.1",
+    "pydantic>=2.11.4",
+]
