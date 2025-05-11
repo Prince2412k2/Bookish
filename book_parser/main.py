@@ -13,15 +13,6 @@ warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
 ##file imports
 
-
-# Set up basic configuration
-logging.basicConfig(
-    level=logging.INFO,  # DEBUG, INFO, WARNING, ERROR, CRITICAL
-    format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-    handlers=[
-        logging.StreamHandler()  # Output to console
-    ],
-)
 logger = logging.getLogger(__name__)
 
 
