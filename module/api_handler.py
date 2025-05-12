@@ -1,12 +1,19 @@
-from re import L
 from pydantic import BaseModel, Field, ValidationError
 import requests
 from typing import List, Dict, Optional, Tuple, ClassVar, Type
 from enum import Enum
 import logging
 import time
+from dotenv import load_dotenv
+import os
 
-from module.search import WordInstance, SelectionInstance
+from module.search import (
+    WordInstance,
+    SelectionInstance,
+    get_selection_obj,
+    get_word_obj,
+)
+from book_parser.main import Book
 from module.prompts import WORD_PROMPT, SELECTION_PROMPT
 
 logger = logging.getLogger()
@@ -49,7 +56,6 @@ class PayloadSchema(BaseModel):
     top_p: float = 0.8
     frequency_penalty: float = 1.0
     presence_penalty: float = 1.5
-    repetition_penalty: float = 1.5
 
 
 class UsageSchema(BaseModel):
@@ -92,7 +98,7 @@ class SelectionReturnSchema(BaseModel):
     """format of return from api"""
 
     spoiler_free_explination: str
-    spoiler_explination: List[str]
+    spoiler_explination: str
 
 
 def get_response(
@@ -100,6 +106,7 @@ def get_response(
 ) -> Optional[ResponseSchema]:
     url = "https://api.groq.com/openai/v1/chat/completions"
     session = requests.session()
+    logger.info("getting response")
     for attempt in range(1, max_retries + 1):
         try:
             response = session.post(
@@ -110,16 +117,21 @@ def get_response(
             )
 
             code = response.status_code
+            logger.info(f"response: {response}")
             if code == 200:
                 response_data = response.json()
                 logger.info(
                     f"[Response] : 200 : Input_Tokens={response_data['usage']['prompt_tokens']} | Output_Tokens={response_data['usage']['completion_tokens']}  | Time={response_data['usage']['total_time']}"
                 )
-                return ResponseSchema.model_validate_json(response_data)
+                return ResponseSchema.model_validate(response_data)
 
             elif code in [500, 502, 503, 504]:  # Retry for server errors
                 logger.warning(
                     f"[Response] : Server error ({code}), retrying {attempt}/{max_retries}..."
+                )
+            else:
+                logger.info(
+                    f"[Response] : Server error ({code}), response: {response.text}"
                 )
         except (
             requests.ConnectionError,
@@ -133,9 +145,13 @@ def get_response(
 
 
 def get_msg(kind: Kind, model: BaseModel) -> List[MessageSchema]:
-    role = WORD_PROMPT if kind == Kind.WORD else SELECTION_PROMPT
+    role, schema = (
+        (WORD_PROMPT, WordReturnSchema)
+        if kind == Kind.WORD
+        else (SELECTION_PROMPT, SelectionReturnSchema)
+    )
     return [
-        MessageSchema(role="system", content=role),
+        MessageSchema(role="system", content=f"{role}{schema.model_json_schema()}"),
         MessageSchema(role="user", content=model.model_dump_json(by_alias=True)),
     ]
 
@@ -173,3 +189,27 @@ def get_selection_meaning(
     if not response:
         raise Exception("Failed to get response")
     return validate_schema(response.choices[0].message, SelectionReturnSchema)
+
+
+def main():
+    load_dotenv()
+    api = os.environ.get("API")
+    assert api
+    header = HeadersSchema().create(api)
+
+    book = Book()
+    book.load("/home/prince/projects/book2/tests/stuff/test_books/LP.epub")
+    selection = """raise five thousand roses in the same garden—and they do
+not find in it what they are looking for."""
+    model = get_word_obj(book, word="rose", sentance=selection)
+    assert model
+    mess = get_msg(kind=Kind.WORD, model=model)
+    payload = PayloadSchema(messages=mess)
+    print(get_response(request_body=payload, headers=header))
+    print()
+    print()
+    print(model.model_dump_json())
+
+
+if __name__ == "__main__":
+    main()

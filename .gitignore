@@ -6,7 +6,10 @@ dist/
 wheels/
 *.egg-info
 
-## ignore test books excpet two
+#ignore .env 
+.env
+
+# ignore test books excpet two
 tests/stuff/test_books/**
 tests/stuff/test_books/
 !tests/stuff/test_books/LP.epub

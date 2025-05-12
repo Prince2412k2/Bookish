@@ -39,7 +39,9 @@ def set_chapter(
     chapter_name: str,
     content: str,
 ) -> "Chapter":
-    return Chapter(chapter_id=str(id), title=chapter_name, content=content)
+    return Chapter(
+        chapter_id=str(id), title=chapter_name, content=content.replace(r"\n", "\n")
+    )
 
 
 def get_html_files(path: Path):
@@ -52,9 +54,8 @@ def get_html_files(path: Path):
                     content = soup.body
                     if not content:
                         content = soup
-                    html[i] = content.get_text(separator="\n", strip=True).replace(
-                        r"\n", "\n"
-                    )
+                    html[i] = content.get_text(separator=r"\n", strip=True)
+
     return html
 
 
@@ -94,6 +95,8 @@ class Chapter(BaseModel):
 
 
 class Book(BaseModel):
+    """use book.load(path:str) where book is instance of Book"""
+
     model_config = {"arbitrary_types_allowed": True}
     path: Path = Field(default=Path(""), exclude=True)
     name: str = Field(default="", exclude=True)
