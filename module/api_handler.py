@@ -13,7 +13,7 @@ from module.search import (
     get_selection_obj,
     get_word_obj,
 )
-from book_parser.main import Book
+from module.book_parser import Book
 from module.prompts import WORD_PROMPT, SELECTION_PROMPT
 
 logger = logging.getLogger()

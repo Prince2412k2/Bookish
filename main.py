@@ -1,15 +1,7 @@
-from module import api_handler
-from module.api_handler import main
-from utils.logger_module import set_logger
-from module.search import main as search
-
-
-def print_book():
-    search()
+from api.main import main
 
 
 def test():
-    set_logger()
     main()
 
 
