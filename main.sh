@@ -1,1 +1,1 @@
-python3 ./module/main.py
+#!/usr/bin/env -S python ./api/main.py
