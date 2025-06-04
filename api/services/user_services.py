@@ -1,9 +1,7 @@
-from typing import Optional
-from fastapi import Depends, HTTPException, status
+from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.exc import IntegrityError
-from api.database.init_db import get_db
 from api.database.tables import User
 from api.schemas.login_schema import UserSchema
 from logging import getLogger
@@ -32,6 +30,7 @@ async def add_user(user: UserSchema, db: AsyncSession) -> User:
         await db.commit()
         await db.refresh(user_table)
         return user_table
+
     except IntegrityError as e:
         logger.warning(f"[add_user] : {e}")
         await db.rollback()

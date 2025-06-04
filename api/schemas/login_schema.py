@@ -1,12 +1,18 @@
 from pydantic import BaseModel, EmailStr, ConfigDict
 from typing import Optional
 
-from api.schemas.models import TypeUser
+
+from enum import StrEnum
 
 
 class Token(BaseModel):
     access_token: str
-    token_type: str
+    token_type: str = "bearer"
+
+
+class TypeUser(StrEnum):
+    FREE = "FREE"
+    PAID = "PAID"
 
 
 class UserSchema(BaseModel):

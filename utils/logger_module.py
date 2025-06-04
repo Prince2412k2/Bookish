@@ -2,18 +2,6 @@ import logging
 import sys
 
 
-# Set up basic configuration
-# def set_logger():
-#     logging.basicConfig(
-#         level=logging.INFO,  # DEBUG, INFO, WARNING, ERROR, CRITICAL
-#         format="%(asctime)s - %(name)s - %(levelname)s - %(message)s",
-#         handlers=[
-#             logging.StreamHandler()  # Output to console
-#         ],
-#     )
-#
-
-
 def configure_logger(log_level=logging.DEBUG, log_file="app.log"):
     logger = logging.getLogger()  # Get the root logger
     logger.setLevel(log_level)

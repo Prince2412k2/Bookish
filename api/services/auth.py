@@ -11,11 +11,20 @@ from jose import jwt, JWTError, ExpiredSignatureError
 from datetime import timedelta, datetime, timezone
 
 from api.database.tables import User
+from api.schemas.login_schema import Token
 
-app = FastAPI()
+from dotenv import load_dotenv
+import os
 
-SECRET_KEY = "12nfj45647dghs74e7du4e89i4er98ie984we98i4w094oew"
-ALGORITHM = "HS256"
+load_dotenv()
+
+
+try:
+    SECRET_KEY = os.environ["SECRET_KEY"]
+    ALGORITHM = os.environ["ALGORITHM"]
+except KeyError as e:
+    raise RuntimeError(f"Missing required environment variable: {e.args[0]}")
+
 
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/user/login")
 bcrypt_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
@@ -29,17 +38,19 @@ def verify_hash(password: str, hashed_password: str) -> bool:
     return bcrypt_context.verify(secret=password, hash=hashed_password)
 
 
-def create_acess_token(
+def create_access_token(
     data: dict, expiration_time: timedelta = timedelta(minutes=15)
-) -> Optional[str]:
+) -> Token:
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + expiration_time
-    to_encode["exp"] = expire
+    to_encode.update({"exp": expire})
+
     try:
         encoded_jwt = jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
-        return encoded_jwt
-    except JWTError:
-        raise
+        return Token(access_token=encoded_jwt)
+    except JWTError as e:
+        # Optional: log or handle specific errors
+        raise ValueError(f"Token encoding failed: {str(e)}")
 
 
 async def authenticate_user(username: str, password: str, db: AsyncSession) -> User:
@@ -53,3 +64,14 @@ async def authenticate_user(username: str, password: str, db: AsyncSession) -> U
             status_code=status.HTTP_404_NOT_FOUND,
             detail="Incorrrect Credentials",
         )
+
+
+def get_current_user(token: str = Depends(oauth2_scheme)) -> int:
+    try:
+        payload = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+        user_id = payload.get("sub")
+        if not user_id:
+            raise HTTPException(status_code=401, detail="invalid toekn")
+        return int(user_id)
+    except JWTError:
+        raise HTTPException(status_code=401, detail="Invalid or malformed token")
