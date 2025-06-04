@@ -3,7 +3,7 @@ from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncAttrs
 
-from api.schemas.models import TypeUser
+from api.schemas.login_schema import TypeUser
 
 # TODO: add type of users e.g. paid/unpaid.
 # TODO: add credit system for usage data.

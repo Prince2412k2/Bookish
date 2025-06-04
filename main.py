@@ -3,7 +3,8 @@ from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
 from api.database.init_db import create_db
-from api.endpoints.user_cred import login_router
+from api.endpoints.user_route import login_router
+from api.endpoints.book_route import book_router
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -19,6 +20,7 @@ async def lifespan(app: FastAPI):
 app = FastAPI(lifespan=lifespan)
 
 app.include_router(login_router, prefix="/user")
+app.include_router(book_router, prefix="/book")
 
 
 @app.get("/")
