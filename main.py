@@ -1,22 +1,26 @@
-from api.database.init_db import get_db, init_db
-from api.database.models import Book, User
-from api.database.schema import BookSchema, UserSchema
-import asyncio
+import logging
+from fastapi import FastAPI
+from contextlib import asynccontextmanager
+
+from api.database.init_db import create_db
+from api.endpoints.user_cred import login_router
+
+logger = logging.getLogger("uvicorn.error")
 
 
-async def create_book(book: BookSchema):
-    async for db in get_db():
-        new_book = Book(**book.model_dump())
-        db.add(new_book)
-        await db.commit()
-        await db.refresh(new_book)
-        return new_book
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    logger.info("starting up the app")
+    await create_db()
+    logger.info("create_db")
+    yield
 
 
-async def test():
-    await init_db()
-    await create_book(BookSchema(name="LP", user_id="wdefrgt", page=20))
+app = FastAPI(lifespan=lifespan)
+
+app.include_router(login_router, prefix="/user")
 
 
-if __name__ == "__main__":
-    asyncio.run(test())
+@app.get("/")
+async def helo():
+    return {"helo": "world"}

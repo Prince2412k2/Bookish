@@ -3,6 +3,11 @@ from sqlalchemy import ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship, DeclarativeBase
 from sqlalchemy.ext.asyncio import AsyncAttrs
 
+from api.schemas.models import TypeUser
+
+# TODO: add type of users e.g. paid/unpaid.
+# TODO: add credit system for usage data.
+
 
 class Base(AsyncAttrs, DeclarativeBase):
     pass
@@ -13,7 +18,9 @@ class User(Base):
 
     id: Mapped[int] = mapped_column(primary_key=True)
     name: Mapped[str] = mapped_column(String(50))
-
+    password: Mapped[str] = mapped_column(nullable=False)
+    email: Mapped[str] = mapped_column(nullable=False)
+    user_type: Mapped[str] = mapped_column(nullable=False)
     current_book_id: Mapped[Optional[int]] = mapped_column(
         ForeignKey("books.id"), nullable=True
     )

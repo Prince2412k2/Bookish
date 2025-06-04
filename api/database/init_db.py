@@ -1,9 +1,7 @@
 from sqlalchemy.ext.asyncio import create_async_engine, async_sessionmaker
-from api.database.models import Base, User, Book
-from contextlib import asynccontextmanager
+from api.database.tables import Base, User, Book
 
 DATABASE_URL = "postgresql+asyncpg://postgres@localhost:5432/postgres"
-# DATABASE_URL = "sqlite+aiosqlite:///"
 
 engine = create_async_engine(DATABASE_URL, echo=True)
 async_session = async_sessionmaker(bind=engine)
@@ -15,11 +13,10 @@ async def create_db():
     await engine.dispose()
 
 
-@asynccontextmanager
 async def get_db():
     """get db and close it"""
-    db = async_session()
-    try:
-        yield db
-    finally:
-        await db.close()
+    async with async_session() as db:
+        try:
+            yield db
+        finally:
+            await db.close()
