@@ -1,0 +1,33 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>artistName</key>
+	<string></string>
+	<key>book-info</key>
+	<dict>
+		<key>cover-image-hash</key>
+		<string>90C21B6BCFC0B0AA12B53E76732DDACB</string>
+		<key>cover-image-path</key>
+		<string>cover.jpg</string>
+		<key>mime-type</key>
+		<string>application/epub+zip</string>
+		<key>package-file-hash</key>
+		<string>1BD87F3AFFACE3BAA9875DCEF50C3A21</string>
+		<key>publisher-unique-id</key>
+		<string>http://www.epubbud.com/epubs/C/Z/CZXLQ9L5/Exup__ry_The_Little_Prince.epub</string>
+		<key>unique-id</key>
+		<integer>-7411875654941616245</integer>
+	</dict>
+	<key>itemName</key>
+	<string>Exupéry The Little Prince</string>
+	<key>playlistName</key>
+	<string>Exupéry The Little Prince</string>
+	<key>releaseDate</key>
+	<string>2010-09-08</string>
+	<key>sort-artist</key>
+	<string>, </string>
+	<key>sort-artist-status</key>
+	<integer>3</integer>
+</dict>
+</plist>
