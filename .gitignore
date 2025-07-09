@@ -10,10 +10,10 @@ wheels/
 .env
 
 # ignore test books excpet two
-tests/stuff/test_books/**
-tests/stuff/test_books/
-!tests/stuff/test_books/LP.epub
-!tests/stuff/test_books/PP.epub
+backend/tests/stuff/test_books/**
+backend/tests/stuff/test_books/
+!backend/tests/stuff/test_books/LP.epub
+!backend/tests/stuff/test_books/PP.epub
 
 # Virtual environments
 .venv
