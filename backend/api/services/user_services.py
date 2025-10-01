@@ -25,6 +25,7 @@ async def add_user(user: UserSchema, db: AsyncSession) -> User:
     """add user to database"""
     user.password = hash_password(user.password)
     user_table = User(**user.model_dump(mode="python"))
+    user_table.current_book_id = None
     try:
         db.add(user_table)
         await db.commit()
@@ -32,10 +33,10 @@ async def add_user(user: UserSchema, db: AsyncSession) -> User:
         return user_table
 
     except IntegrityError as e:
-        logger.warning(f"[add_user] : {e}")
         await db.rollback()
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Email already registered"
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Database error: {e.orig}",
         )
     except Exception as e:
         logger.warning(f"[add_user] : {e}")

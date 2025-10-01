@@ -5,8 +5,9 @@ from pydantic import BaseModel, Field
 from zipfile import ZipFile
 from bs4 import BeautifulSoup, XMLParsedAsHTMLWarning
 import warnings
+from uuid import UUID, uuid4
 
-from module.book_parser.base import Epub
+from book_parser.base import Epub
 
 warnings.filterwarnings("ignore", category=XMLParsedAsHTMLWarning)
 
@@ -100,6 +101,7 @@ class Book(BaseModel):
     model_config = {"arbitrary_types_allowed": True}
     path: Path = Field(default=Path(""), exclude=True)
     name: str = Field(default="", exclude=True)
+    id: str = Field(default="", exclude=True)
     file: Optional[Epub] = None
     chapters: List[Chapter] = Field(default_factory=list, exclude=True)
     metadata: Dict[Any, Any] = Field(default_factory=dict, exclude=True)
@@ -109,6 +111,7 @@ class Book(BaseModel):
         self.name = path.stem
         self.path = path if validate_epub(path) else Path("")
         self.file = get_book(self.path)
+        self.id = str(uuid4())
         set_chapters(self)
         set_metadata(self)
         set_title(self)
@@ -120,10 +123,12 @@ class Book(BaseModel):
         return self.metadata
 
 
-def main():
+def test_1():
     book = Book()
-    book.load(path_to_book="/home/prince/projects/book2/tests/stuff/test_books/AF.epub")
-    print(book.get_all_chap())
+    book.load(
+        path_to_book="/home/prince/projects/Bookish/backend/module/book_parser/SeaStories.epub"
+    )
+    return book
 
 
 def test():
@@ -135,7 +140,3 @@ def test():
                     soup = BeautifulSoup(chapter.read().decode("utf-8"), features="xml")
 
                 print(soup.get_text(separator="\n", strip=True))
-
-
-if __name__ == "__main__":
-    main()

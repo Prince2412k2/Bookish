@@ -6,6 +6,7 @@ from api.services.auth import get_current_user
 import logging
 
 from api.services.book_services import add_book, delete_book
+from dependencies import get_qdrant
 
 logger = logging.getLogger("uvicorn.errors")
 
@@ -16,9 +17,10 @@ book_router = APIRouter()
 async def save_book(
     file: UploadFile,
     user_id: int = Depends(get_current_user),
+    client=Depends(get_qdrant),
     db: AsyncSession = Depends(get_db),
 ):
-    return await add_book(file, user_id, db)
+    return await add_book(file, user_id, client, db)
 
 
 @book_router.post("/delete")

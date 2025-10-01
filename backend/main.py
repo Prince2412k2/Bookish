@@ -2,19 +2,27 @@ import logging
 from fastapi import FastAPI
 from contextlib import asynccontextmanager
 
+
 from api.database.init_db import create_db
+
 from api.endpoints.user_route import login_router
 from api.endpoints.book_route import book_router
 import uvicorn
+
+from module.embeddings import create_qdrant
+import clients
 
 logger = logging.getLogger("uvicorn.error")
 
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
+    global qdrant
     logger.info("starting up the app")
+    clients.qdrant = create_qdrant()
+    logger.info("connected to qdrant")
     await create_db()
-    logger.info("create_db")
+    logger.info("connected to postgress")
     yield
 
 

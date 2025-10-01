@@ -11,11 +11,6 @@ logger = configure_logger(log_level=logging.INFO)
 app = FastAPI()
 
 
-@app.get("/")
-def helloword():
-    return {"helo": "world"}
-
-
 @app.post("/users")
 async def create_user(user: UserSchema, db: AsyncSession = Depends(get_db)):
     new_user = User(**user.dict())  # Unpack Pydantic fields

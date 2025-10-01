@@ -2,6 +2,7 @@ import os
 from typing import Optional
 from fastapi import HTTPException, UploadFile, status
 import aiofiles
+from qdrant_client import AsyncQdrantClient
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -9,6 +10,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from api.database.tables import Book
 from api.schemas.book_schema import BookSchema
 import logging
+
+from module.embeddings import embbed_book
 
 logger = logging.getLogger("uvicorn.error")
 
@@ -116,11 +119,14 @@ async def handle_exceptions(file: UploadFile, user_id, db):
         )
 
 
-async def add_book(file: UploadFile, user_id, db: AsyncSession) -> BookSchema:
+async def add_book(
+    file: UploadFile, user_id, client: AsyncQdrantClient, db: AsyncSession
+) -> BookSchema:
     assert file.filename  # TODO: fix this in future
     await handle_exceptions(file, user_id, db)
     await save_book_file(file, user_id=user_id)
     book = await add_book_to_db(file, user_id, db)
+    await embbed_book(book, client)
     return book
 
 
